@@ -752,7 +752,7 @@ public class ALP_ALPRO {
     }
 
     private static String editLain(int nameLain, double priceLain) {
-        pricetngKrj.set(nameLain, priceLain);
+        pricebyLain.set(nameLain, priceLain);
         return "\nSukses diubah!";
     }
 
