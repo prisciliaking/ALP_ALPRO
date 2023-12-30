@@ -1,4 +1,3 @@
-package alp_alpro;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -104,6 +103,7 @@ public class ALP_ALPRO {
         // ===================================================================
         switch (pick) {
             case 1:
+                jmlhPorsi();
                 varCost();
                 fixedCost();
                 hargaPP();
@@ -147,11 +147,20 @@ public class ALP_ALPRO {
             case 3:
                 isLogin();
                 break;
-            //TIDAK BEKERJA
+            // belum kebaca
             case 4:
-                do{
-                histoHarga();
-                }while(true);
+                totalBhnBaku();
+                totalKerja();
+                totalLainnya();
+                totalVariabel();
+                totalFixed();
+                pricePerProduct();
+                hargaPP();
+                perProduct();
+                marginContribution();
+                breakEQ();
+                breakEP();
+                isLogin();
         }
     }
 
@@ -292,15 +301,9 @@ public class ALP_ALPRO {
         } while (!reset_valid);
     }
 
-    //fitur pertama
-    private static void varCost() {
-        String namaBhnBaku, ans, namaTngKrj, namaByLain;
-        double hrgBhnBaku = 0, hrgTngKrj = 0, hrgByLain = 0;
-        double totBhnBaku = 0, totKerja = 0, totLainnya = 0, totSemua = 0, perProduk = 0;
+    private static Integer jmlhPorsi() {
         int jmlhPorsi = 0;
-        boolean BhnBaku_valid = false, TngKrj_valid = false, ByLain_valid = false, Porsi_valid = false;
-        boolean yesnoBaku_valid = false, yesnoKerja_valid = false, yesnoLainnya_valid = false;
-
+        boolean Porsi_valid = false;
         do { // buat masukin porsi
             try {
                 System.out.println("Untuk berapa porsi? ");
@@ -317,6 +320,16 @@ public class ALP_ALPRO {
             }
             fixPortion.add(jmlhPorsi);
         } while (!Porsi_valid);
+        return 0;
+    }
+
+    //fitur pertama
+    private static void varCost() {
+        String namaBhnBaku, ans, namaTngKrj, namaByLain;
+        double hrgBhnBaku = 0, hrgTngKrj = 0, hrgByLain = 0;
+        double totBhnBaku = 0, totKerja = 0, totLainnya = 0;
+        boolean BhnBaku_valid = false, TngKrj_valid = false, ByLain_valid = false;
+        boolean yesnoBaku_valid = false, yesnoKerja_valid = false, yesnoLainnya_valid = false;
 
         do { //buat bahan baku
             System.out.println("\n=== Masukkan Bahan Baku ===");
@@ -339,9 +352,6 @@ public class ALP_ALPRO {
                 }
             }
             pricebhnBaku.add(hrgBhnBaku);
-            // ===============================
-            totBhnBaku += hrgBhnBaku;
-            ttlbhnBaku.add(totBhnBaku);
             // ===============================
             do {
                 System.out.println("Masih ada inputan? y/n");
@@ -380,9 +390,6 @@ public class ALP_ALPRO {
             }
             pricetngKrj.add(hrgTngKrj);
             // ===========================
-            totKerja += hrgTngKrj;
-            ttltngKerja.add(totKerja);
-            // ===========================
             do {
                 System.out.println("Masih ada inputan? y/n");
                 ans = scan.next();
@@ -418,9 +425,6 @@ public class ALP_ALPRO {
             }
             pricebyLain.add(hrgByLain);
             // ===========================
-            totLainnya += hrgByLain;
-            ttlLainnya.add(totLainnya);
-            // ===========================
             do {
                 System.out.println("Masih ada inputan? y/n");
                 ans = scan.next();
@@ -434,22 +438,19 @@ public class ALP_ALPRO {
             } while (!yesnoLainnya_valid);
         } while (!ByLain_valid);
 
-        //Harga keseluruhan variable cost//
-        totSemua = (totKerja + totBhnBaku + totLainnya);
-        ttlVarCost.add(totSemua);
-
-        //Harga per satuan product//
-        perProduk = (totSemua / jmlhPorsi);
-        priceProduk.add(perProduk); //simpen per produk
-
-        System.out.println("total variable cost : " + totSemua);
-        System.out.println("total per produk : " + perProduk);
-        return;
+        totalBhnBaku();
+        totalKerja();
+        totalLainnya();
+        totalVariabel();
+//        System.out.println("total variable cost : Rp  " + ttlVarCost.get(0));
+        pricePerProduct();
+        // ================
+        fixedCost();
     }
 
     private static void fixedCost() {
         String namaFixCost, ans;
-        double hrgFixCost = 0, totFixCost = 0;
+        double hrgFixCost = 0;
         boolean FixedCost_valid = false, yesnoFixed_valid = false;
 
         System.out.println("=== Masukkan Fixed Cost (Biaya tetap) ===");
@@ -474,7 +475,6 @@ public class ALP_ALPRO {
             }
             // ================================
             priceFixCost.add(hrgFixCost);
-            totFixCost += hrgFixCost;
             // ================================
             do {
                 System.out.println("Masih ada inputan? y/n");
@@ -490,23 +490,136 @@ public class ALP_ALPRO {
         } while (!FixedCost_valid);
 
         //simpan smua fix cost
-        ttlFixCost.add(totFixCost);
-        System.out.println("total fix cost : " + totFixCost);
+        totalFixed();
+//        System.out.println("total fix cost : " + ttlFixCost.get(0));
         hargaPP();
+    }
+    // ======================================================
+    //perhitungan
+    private static void totalBhnBaku() {
+        double totBaku = 0;
+        for (int i = 0; i < pricebhnBaku.size(); i++) {
+            totBaku += pricebhnBaku.get(i);
+        }
+        // ==============================
+        ttlbhnBaku.add(totBaku);
+        // ==============================
+    }
+
+    private static void totalKerja() {
+        double totTenaga = 0;
+        for (int k = 0; k < pricetngKrj.size(); k++) {
+            totTenaga += pricetngKrj.get(k);
+        }
+        // =============================
+        ttltngKerja.add(totTenaga);
+        // =============================
+    }
+
+    private static void totalLainnya() {
+        double totLainnya = 0;
+        for (int l = 0; l < pricebyLain.size(); l++) {
+            totLainnya += pricebyLain.get(l);
+        }
+        // =============================
+        ttlLainnya.add(totLainnya);
+        // =============================
+    }
+
+    private static void totalVariabel() {
+        double totVariabel = 0;
+        totVariabel = ttlbhnBaku.get(0) + ttltngKerja.get(0) + ttlLainnya.get(0);
+        // ============================
+        ttlVarCost.add(totVariabel);
+        // ============================
+    }
+
+    private static void totalFixed() {
+        double totFix = 0;
+        for (int i = 0; i < priceFixCost.size(); i++) {
+            totFix += priceFixCost.get(i);
+        }
+        // ==============================
+        ttlFixCost.add(totFix);
+        // ==============================
+    }
+    
+    private static void pricePerProduct() {
+        //Harga per satuan product//
+        double perProduk = 0;
+        perProduk = (ttlVarCost.get(0) / fixPortion.get(0));;
+        priceProduk.add(perProduk); //simpen per produk
+    }
+    // ====================================================
+    // fitur ke dua
+    private static void listVarCost() {
+        double totListBaku = 0, totListTng = 0, totListLain = 0, totListVar = 0;
+        String RpListVar;
+        System.out.println("Jumlah Porsi : " + fixPortion.get(0));
+        System.out.println("\n=== Variabel Cost ===");
+        System.out.println("Nama Bahan Baku :\tHarga");
+        for (int j = 0; j < pricebhnBaku.size(); j++) {
+            System.out.println(namebhnBaku.get(j) + " : \t" + rp.format(pricebhnBaku.get(j)));
+            totListBaku += pricebhnBaku.get(j);
+        }
+
+        System.out.println("total bahan baku : " + totListBaku);
+        // =======================================================
+        System.out.println("\nNama Tenaga Kerja :\tHarga");
+        for (int k = 0; k < pricetngKrj.size(); k++) {
+            System.out.println(nametngKrj.get(k) + " : \t" + rp.format(pricetngKrj.get(k)));
+            totListTng += pricetngKrj.get(k);
+        }
+
+        System.out.println("total tenaga kerja : " + totListTng);
+        // =======================================================
+        System.out.println("\nNama Biaya Lainnya :\tHarga");
+        for (int l = 0; l < pricebyLain.size(); l++) {
+            System.out.println(namebyLain.get(l) + " : \t" + rp.format(pricebyLain.get(l)));
+            totListLain += pricebyLain.get(l);
+        }
+
+        System.out.println("total biaya lainnya : " + totListLain);
+        // =======================================================
+        totListVar = (totListBaku + totListTng + totListLain);
+        // =======================================================
+        RpListVar = rp.format((int) totListVar);
+        System.out.println("\nTotal Variable Cost : " + RpListVar);
+        listFixCost();
+    }
+
+    private static void listFixCost() {
+        double totListFix = 0;
+        String RpListFix;
+        System.out.println("\n=== Fixed Cost ===");
+        System.out.println("Nama Biaya Lainnya :\tHarga");
+        for (int i = 0; i < priceFixCost.size(); i++) {
+            System.out.println(nameFixCost.get(i) + " : \t" + rp.format(priceFixCost.get(i)));
+            totListFix += priceFixCost.get(i);
+        }
+
+        RpListFix = rp.format((int) totListFix);
+        System.out.println("\nTotal Fixed Cost : " + RpListFix);
+        isLogin();
     }
 
     //perhitungannya
+
     private static void hargaPP() { //harga pokok produksi
         float perUntung, totUntung = 0;
         double totHPP = 0, perUnit = 0;
         double indtotHPP;
         int hasilUnit;
         String RphslUnit, RpHPP;
-
+        System.out.println("\n=======================================================");
+        System.out.println("Total Variable Cost : Rp  " + ttlVarCost.get(0));
+        System.out.println("Harga per Produk : Rp " + priceProduk.get(0));
+        System.out.println("Total Fixed Cost : Rp " + ttlFixCost.get(0));
+        System.out.println("=======================================================");
         totHPP = ttlFixCost.get(0) + ttlVarCost.get(0);
         totalHPP.add(totHPP);
         RpHPP = rp.format((int) totHPP);
-        System.out.println("total hpp : " + RpHPP);
+        System.out.println("Total Harga Pokok Produksi : " + RpHPP);
 
         // harga pokok produksi per unit
         for (int k = 0; k < totalHPP.size(); k++) {
@@ -516,11 +629,15 @@ public class ALP_ALPRO {
         eachUnit.add(hasilUnit);
         // =========================================
         RphslUnit = rp.format((int) hasilUnit);
-        System.out.println("Harga pokok produksi per unit : " + RphslUnit);
+        System.out.println("\nHarga Pokok Produksi per Unit : " + RphslUnit);
         // =========================================
+        persenUntung();
+    }
 
+    private static void persenUntung() {
+        float perUntung, totUntung;
         //mencari persen keuntungan
-        System.out.print("Mau untung berapa persen? (1-100) : ");
+        System.out.print("\nMau untung berapa persen? (1-100) : ");
         perUntung = scan.nextFloat();
         totUntung = (perUntung / 100);
         ttlUntung.add(totUntung); //simpan persenan untung
@@ -535,14 +652,15 @@ public class ALP_ALPRO {
         for (int k = 0; k < totalHPP.size(); k++) {
             jualProduct += eachUnit.get(k) + (eachUnit.get(k) * ttlUntung.get(k));
         }
-
+        System.out.println("=======================================");
         hasilProduct = (int) Math.ceil(jualProduct);
-        System.out.println("harga sebenarnya : Rp " + hasilProduct);
+        System.out.println("Harga Asli : Rp " + rp.format((int) jualProduct));
         totjualProduct = ((hasilProduct + 999) / 1000) * 1000; // to round up
         sellProduct.add(totjualProduct);
         //====================================================
         RptotProduct = rp.format((int) totjualProduct); //ada Rp di depannya nanti
-        System.out.println("hrga product : " + RptotProduct);
+        System.out.println("=======================================");
+        System.out.println("Harga Jual Produk (pembulatan) : " + RptotProduct);
         marginContribution();
     }
 
@@ -589,61 +707,6 @@ public class ALP_ALPRO {
         System.out.println("Break even Point : " + RpPoint);
         main();
     }
-    
-    // fitur ke dua
-    private static void listVarCost() {
-        double totListBaku = 0, totListTng = 0, totListLain = 0, totListVar = 0;
-        String RpListVar;
-        System.out.println("=== Variabel Cost ===");
-        System.out.println("Nama Bahan Baku :\tHarga");
-        for (int j = 0; j < pricebhnBaku.size(); j++) {
-            System.out.println(namebhnBaku.get(j) + " : \t" + rp.format(pricebhnBaku.get(j)));
-            totListBaku += pricebhnBaku.get(j);
-        }
-        System.out.println("total bahan baku : " + totListBaku);
-        // =======================================================
-        System.out.println("\nNama Tenaga Kerja :\tHarga");
-        for (int k = 0; k < pricetngKrj.size(); k++) {
-            System.out.println(nametngKrj.get(k) + " : \t" + rp.format(pricetngKrj.get(k)));
-            totListTng += pricetngKrj.get(k);
-        }
-        System.out.println("total tenaga kerja : " + totListTng);
-        // =======================================================
-        System.out.println("\nNama Biaya Lainnya :\tHarga");
-        for (int l = 0; l < pricebyLain.size(); l++) {
-            System.out.println(namebyLain.get(l) + " : \t" + rp.format(pricebyLain.get(l)));
-            totListLain += pricebyLain.get(l);
-        }
-        System.out.println("total biaya lainnya : " + totListLain);
-        // =======================================================
-        totListVar = (totListBaku + totListTng + totListLain);
-        RpListVar = rp.format((int) totListVar);
-        System.out.println("\nTotal Variable Cost : " + RpListVar);
-        listFixCost();
-    }
-
-    private static void listFixCost() {
-        double totListFix = 0;
-        String RpListFix;
-        System.out.println("\n=== Fixed Cost ===");
-        System.out.println("Nama Biaya Lainnya :\tHarga");
-        for (int i = 0; i < priceFixCost.size(); i++) {
-            System.out.println(nameFixCost.get(i) + " : \t" + rp.format(priceFixCost.get(i)));
-            totListFix += priceFixCost.get(i);
-        }
-        RpListFix = rp.format((int) totListFix);
-        System.out.println("\nTotal Fixed Cost : " + RpListFix);
-        isLogin();
-    }
-    
-    //TIDAK BEKERJA\\
-    private static void histoHarga(){
-        hargaPP();
-        perProduct();
-        marginContribution();
-        breakEQ();
-        breakEP();
-    }
 
     // fitur ketiga
     private static void editVarCost() {
@@ -656,7 +719,7 @@ public class ALP_ALPRO {
             System.out.println("==============================");
             System.out.println("== 1. Edit Bahan Baku       ==");
             System.out.println("== 2. Edit Tenaga Kerja     ==");
-            System.out.println("== 3. Edit Bahan Laainnnya  ==");
+            System.out.println("== 3. Edit Bahan Lainnnya  ==");
             System.out.println("== 4. Kembali               ==");
             System.out.println("==============================");
             System.out.println("Choose : ");
@@ -752,7 +815,7 @@ public class ALP_ALPRO {
     }
 
     private static String editLain(int nameLain, double priceLain) {
-        pricebyLain.set(nameLain, priceLain);
+        pricetngKrj.set(nameLain, priceLain);
         return "\nSukses diubah!";
     }
 
